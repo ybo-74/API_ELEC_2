@@ -1,2 +1,1 @@
-dont touch main and staging branch
-for updates, always go to development branch, thank you
+please dont touch main and staging branch. For updates and edits, always go to development branch, thank you
