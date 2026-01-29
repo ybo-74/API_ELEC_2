@@ -1,1 +1,1 @@
-Jan 28 : Using 'testing' table 
+always read the commits first before editing, 谢谢
