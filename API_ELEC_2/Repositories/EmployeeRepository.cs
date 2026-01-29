@@ -62,9 +62,7 @@ namespace API_ELEC_2.Repositories
                         position = reader["position"].ToString(),
                         birthDate = DateOnly.FromDateTime(Convert.ToDateTime(reader["birthDate"]))
                     };
-                } if (employee == null) {
-                    throw new Exception($"Employee with ID {id} not found.");
-                   }
+                }
             } return employee;
         }
 
