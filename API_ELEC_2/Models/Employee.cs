@@ -7,5 +7,6 @@
         public string lastName { get; set; }
         public string position { get; set; }
         public DateOnly birthDate { get; set; }
+        
     }
 }
