@@ -1,6 +1,43 @@
 @API_ELEC_2_HostAddress = http://localhost:5027
 
-GET {{API_ELEC_2_HostAddress}}/weatherforecast/
+### GET ALL EMPLOYEES
+GET {{API_ELEC_2_HostAddress}}/api/employees
+Accept: application/json
+
+###
+
+### GET EMPLOYEE BY ID
+GET {{API_ELEC_2_HostAddress}}/api/employees/1
+Accept: application/json
+
+###
+
+### GET ALL AIRLINES
+GET {{API_ELEC_2_HostAddress}}/api/airlines
+Accept: application/json
+
+###
+
+### GET ALL AIRPORTS
+GET {{API_ELEC_2_HostAddress}}/api/airports
+Accept: application/json
+
+###
+
+### GET ALL FLIGHTS
+GET {{API_ELEC_2_HostAddress}}/api/flights
+Accept: application/json
+
+###
+
+### GET ALL BOOKINGS
+GET {{API_ELEC_2_HostAddress}}/api/bookings
+Accept: application/json
+
+###
+
+### GET ALL BOOKING PAY
+GET {{API_ELEC_2_HostAddress}}/api/bookings/pay
 Accept: application/json
 
 ###
