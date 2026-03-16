@@ -22,11 +22,7 @@ namespace API_ELEC_2.Controllers
         [HttpGet("meals")]
         public ActionResult<IEnumerable<OthersMeal>> GetAllMeals()
         {
-            try
-            {
-                var repo = new OthersMealRepository(_configuration);
-                return Ok(repo.GetAllMeals());
-            }
+            try { return Ok(new OthersMealRepository(_configuration).GetAllMeals()); }
             catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex.Message}"); }
         }
 
@@ -35,8 +31,7 @@ namespace API_ELEC_2.Controllers
         {
             try
             {
-                var repo = new OthersMealRepository(_configuration);
-                var item = repo.GetByID(id);
+                var item = new OthersMealRepository(_configuration).GetByID(id);
                 if (item == null) return NotFound($"Meal with ID {id} not found.");
                 return Ok(item);
             }
@@ -49,8 +44,7 @@ namespace API_ELEC_2.Controllers
             try
             {
                 if (meal == null) return BadRequest("Meal data is required.");
-                var repo = new OthersMealRepository(_configuration);
-                bool created = repo.Add(meal);
+                bool created = new OthersMealRepository(_configuration).Add(meal);
                 if (created) return Ok(new { message = "Meal created successfully." });
                 return BadRequest("Failed to create meal.");
             }
@@ -96,11 +90,7 @@ namespace API_ELEC_2.Controllers
         [HttpGet("seats")]
         public ActionResult<IEnumerable<OthersSeat>> GetAllSeats()
         {
-            try
-            {
-                var repo = new OthersSeatRepository(_configuration);
-                return Ok(repo.GetAllSeats());
-            }
+            try { return Ok(new OthersSeatRepository(_configuration).GetAllSeats()); }
             catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex.Message}"); }
         }
 
@@ -109,8 +99,7 @@ namespace API_ELEC_2.Controllers
         {
             try
             {
-                var repo = new OthersSeatRepository(_configuration);
-                var item = repo.GetByID(id);
+                var item = new OthersSeatRepository(_configuration).GetByID(id);
                 if (item == null) return NotFound($"Seat with ID {id} not found.");
                 return Ok(item);
             }
@@ -123,8 +112,7 @@ namespace API_ELEC_2.Controllers
             try
             {
                 if (seat == null) return BadRequest("Seat data is required.");
-                var repo = new OthersSeatRepository(_configuration);
-                bool created = repo.Add(seat);
+                bool created = new OthersSeatRepository(_configuration).Add(seat);
                 if (created) return Ok(new { message = "Seat created successfully." });
                 return BadRequest("Failed to create seat.");
             }
@@ -170,11 +158,7 @@ namespace API_ELEC_2.Controllers
         [HttpGet("insurance")]
         public ActionResult<IEnumerable<OthersInsurance>> GetAllInsurance()
         {
-            try
-            {
-                var repo = new OthersInsuranceRepository(_configuration);
-                return Ok(repo.GetAllInsurance());
-            }
+            try { return Ok(new OthersInsuranceRepository(_configuration).GetAllInsurance()); }
             catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex.Message}"); }
         }
 
@@ -183,8 +167,7 @@ namespace API_ELEC_2.Controllers
         {
             try
             {
-                var repo = new OthersInsuranceRepository(_configuration);
-                var item = repo.GetByID(id);
+                var item = new OthersInsuranceRepository(_configuration).GetByID(id);
                 if (item == null) return NotFound($"Insurance with ID {id} not found.");
                 return Ok(item);
             }
@@ -197,8 +180,7 @@ namespace API_ELEC_2.Controllers
             try
             {
                 if (insurance == null) return BadRequest("Insurance data is required.");
-                var repo = new OthersInsuranceRepository(_configuration);
-                bool created = repo.Add(insurance);
+                bool created = new OthersInsuranceRepository(_configuration).Add(insurance);
                 if (created) return Ok(new { message = "Insurance created successfully." });
                 return BadRequest("Failed to create insurance.");
             }
@@ -244,11 +226,7 @@ namespace API_ELEC_2.Controllers
         [HttpGet("baggage")]
         public ActionResult<IEnumerable<OthersBaggage>> GetAllBaggage()
         {
-            try
-            {
-                var repo = new OthersBaggageRepository(_configuration);
-                return Ok(repo.GetAllBaggage());
-            }
+            try { return Ok(new OthersBaggageRepository(_configuration).GetAllBaggage()); }
             catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex.Message}"); }
         }
 
@@ -257,8 +235,7 @@ namespace API_ELEC_2.Controllers
         {
             try
             {
-                var repo = new OthersBaggageRepository(_configuration);
-                var item = repo.GetByID(id);
+                var item = new OthersBaggageRepository(_configuration).GetByID(id);
                 if (item == null) return NotFound($"Baggage with ID {id} not found.");
                 return Ok(item);
             }
@@ -271,8 +248,7 @@ namespace API_ELEC_2.Controllers
             try
             {
                 if (baggage == null) return BadRequest("Baggage data is required.");
-                var repo = new OthersBaggageRepository(_configuration);
-                bool created = repo.Add(baggage);
+                bool created = new OthersBaggageRepository(_configuration).Add(baggage);
                 if (created) return Ok(new { message = "Baggage created successfully." });
                 return BadRequest("Failed to create baggage.");
             }
@@ -312,17 +288,13 @@ namespace API_ELEC_2.Controllers
         }
 
         // ─────────────────────────────────────────
-        // OTHERSDETAILS
+        // OTHERSDETAILS — cancellation check on POST and PUT
         // ─────────────────────────────────────────
 
         [HttpGet]
         public ActionResult<IEnumerable<OthersDetails>> GetAllOthersDetails()
         {
-            try
-            {
-                var repo = new OthersDetailsRepository(_configuration);
-                return Ok(repo.GetAll());
-            }
+            try { return Ok(new OthersDetailsRepository(_configuration).GetAll()); }
             catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex.Message}"); }
         }
 
@@ -331,8 +303,7 @@ namespace API_ELEC_2.Controllers
         {
             try
             {
-                var repo = new OthersDetailsRepository(_configuration);
-                var item = repo.GetByID(id);
+                var item = new OthersDetailsRepository(_configuration).GetByID(id);
                 if (item == null) return NotFound($"OthersDetails with ID {id} not found.");
                 return Ok(item);
             }
@@ -344,8 +315,7 @@ namespace API_ELEC_2.Controllers
         {
             try
             {
-                var repo = new OthersDetailsRepository(_configuration);
-                var items = repo.GetByBookingID(id);
+                var items = new OthersDetailsRepository(_configuration).GetByBookingID(id);
                 if (items == null || !items.Any())
                     return NotFound($"No OthersDetails found for BookingID {id}.");
                 return Ok(items);
@@ -359,7 +329,13 @@ namespace API_ELEC_2.Controllers
             try
             {
                 if (item == null) return BadRequest("OthersDetails data is required.");
+
                 var repo = new OthersDetailsRepository(_configuration);
+
+                // Block if booking is cancelled
+                if (repo.IsBookingCancelled(item.BookingID))
+                    return BadRequest($"Booking {item.BookingID} has been cancelled. Cannot add details to a cancelled booking.");
+
                 bool created = repo.Add(item);
                 if (created) return Ok(new { message = "OthersDetails created successfully." });
                 return BadRequest("Failed to create OthersDetails.");
@@ -373,9 +349,16 @@ namespace API_ELEC_2.Controllers
             try
             {
                 if (item == null) return BadRequest("OthersDetails data is required.");
+
                 var repo = new OthersDetailsRepository(_configuration);
+
                 var existing = repo.GetByID(id);
                 if (existing == null) return NotFound($"OthersDetails with ID {id} not found.");
+
+                // Block if booking is cancelled
+                if (repo.IsBookingCancelled(existing.BookingID))
+                    return BadRequest($"Booking {existing.BookingID} has been cancelled. Cannot update details on a cancelled booking.");
+
                 item.OthersID = id;
                 bool updated = repo.Update(item);
                 if (updated) return Ok(new { message = "OthersDetails updated successfully." });

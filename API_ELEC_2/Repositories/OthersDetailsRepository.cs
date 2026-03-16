@@ -12,6 +12,22 @@ namespace API_ELEC_2.Repositories
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
         }
 
+        // Check if booking is cancelled before allowing POST/PUT
+        public bool IsBookingCancelled(int bookingId)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = @"SELECT COUNT(*) FROM Confirmation 
+                                 WHERE BookingID = @BookingID AND Status = 'Cancelled'";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@BookingID", bookingId);
+                    return Convert.ToInt32(command.ExecuteScalar()) > 0;
+                }
+            }
+        }
+
         private OthersDetails MapOthersDetails(SqlDataReader reader)
         {
             return new OthersDetails

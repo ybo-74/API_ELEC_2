@@ -153,13 +153,13 @@ namespace API_ELEC_2.Repositories
                                              (@BookingID, @LastName, @FirstName, @MiddleName, @Contact, @Birthdate, @Age)";
                         using (var command = new SqlCommand(insertPax, connection, transaction))
                         {
-                            command.Parameters.AddWithValue("@BookingID",   newBookingID);
-                            command.Parameters.AddWithValue("@LastName",    request.LastName);
-                            command.Parameters.AddWithValue("@FirstName",   request.FirstName);
-                            command.Parameters.AddWithValue("@MiddleName",  request.MiddleName);
-                            command.Parameters.AddWithValue("@Contact",     request.Contact);
-                            command.Parameters.AddWithValue("@Birthdate",   request.Birthdate);
-                            command.Parameters.AddWithValue("@Age",         request.Age);
+                            command.Parameters.AddWithValue("@BookingID",  newBookingID);
+                            command.Parameters.AddWithValue("@LastName",   request.LastName);
+                            command.Parameters.AddWithValue("@FirstName",  request.FirstName);
+                            command.Parameters.AddWithValue("@MiddleName", request.MiddleName);
+                            command.Parameters.AddWithValue("@Contact",    request.Contact);
+                            command.Parameters.AddWithValue("@Birthdate",  request.Birthdate);
+                            command.Parameters.AddWithValue("@Age",        request.Age);
                             command.ExecuteNonQuery();
                         }
 
@@ -269,7 +269,7 @@ namespace API_ELEC_2.Repositories
                 {
                     try
                     {
-                        // Get FlightID
+                        // 1. Get FlightID
                         int flightId;
                         string getFlight = "SELECT FlightID FROM Bookings WHERE BookingID = @BookingID";
                         using (var command = new SqlCommand(getFlight, connection, transaction))
@@ -280,7 +280,7 @@ namespace API_ELEC_2.Repositories
                             flightId = Convert.ToInt32(result);
                         }
 
-                        // Soft delete Confirmation
+                        // 2. Soft delete Confirmation → Status = 'Cancelled'
                         string cancelConf = "UPDATE Confirmation SET Status = 'Cancelled' WHERE BookingID = @BookingID";
                         using (var command = new SqlCommand(cancelConf, connection, transaction))
                         {
@@ -288,7 +288,16 @@ namespace API_ELEC_2.Repositories
                             command.ExecuteNonQuery();
                         }
 
-                        // Decrement CurrentPax
+                        // 3. Soft delete AddOthers → IsActive = 0
+                      
+                        string cancelAddOthers = "UPDATE AddOthers SET IsActive = 0 WHERE BookingID = @BookingID";
+                        using (var command = new SqlCommand(cancelAddOthers, connection, transaction))
+                        {
+                            command.Parameters.AddWithValue("@BookingID", bookingId);
+                            command.ExecuteNonQuery();
+                        }
+
+                        // 4. Decrement CurrentPax
                         string decPax = "UPDATE FD_Details SET CurrentPax = CurrentPax - 1 WHERE FlightID = @FlightID";
                         using (var command = new SqlCommand(decPax, connection, transaction))
                         {

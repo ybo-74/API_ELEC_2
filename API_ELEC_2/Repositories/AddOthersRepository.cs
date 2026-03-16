@@ -12,6 +12,21 @@ namespace API_ELEC_2.Repositories
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
         }
 
+        public bool IsBookingCancelled(int bookingId)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = @"SELECT COUNT(*) FROM Confirmation 
+                                 WHERE BookingID = @BookingID AND Status = 'Cancelled'";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@BookingID", bookingId);
+                    return Convert.ToInt32(command.ExecuteScalar()) > 0;
+                }
+            }
+        }
+
         private AddOthers MapAddOthers(SqlDataReader reader)
         {
             return new AddOthers
@@ -51,13 +66,14 @@ namespace API_ELEC_2.Repositories
             return item;
         }
 
+        
         public IEnumerable<AddOthers> GetByBookingID(int bookingId)
         {
             var list = new List<AddOthers>();
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                string query = "SELECT * FROM AddOthers WHERE BookingID = @BookingID AND IsActive = 1";
+                string query = "SELECT * FROM AddOthers WHERE BookingID = @BookingID";
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@BookingID", bookingId);
@@ -71,13 +87,14 @@ namespace API_ELEC_2.Repositories
             return list;
         }
 
+        
         public IEnumerable<AddOthers> GetByPaxID(int paxId)
         {
             var list = new List<AddOthers>();
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                string query = "SELECT * FROM AddOthers WHERE PaxID = @PaxID AND IsActive = 1";
+                string query = "SELECT * FROM AddOthers WHERE PaxID = @PaxID";
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@PaxID", paxId);
@@ -146,7 +163,7 @@ namespace API_ELEC_2.Repositories
             }
         }
 
-        // Soft delete
+     
         public bool SoftDelete(int id)
         {
             using (var connection = new SqlConnection(_connectionString))

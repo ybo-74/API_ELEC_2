@@ -58,7 +58,13 @@ namespace API_ELEC_2.Controllers
             try
             {
                 if (item == null) return BadRequest("Add-on data is required.");
+
                 var repo = new AddOthersRepository(_configuration);
+
+                // Block if booking is cancelled
+                if (repo.IsBookingCancelled(item.BookingID))
+                    return BadRequest($"Booking {item.BookingID} has been cancelled. Cannot add extras to a cancelled booking.");
+
                 bool created = repo.AddAddOthers(item);
                 if (created) return Ok(new { message = "Add-on created successfully." });
                 return BadRequest("Failed to create add-on.");
@@ -76,9 +82,16 @@ namespace API_ELEC_2.Controllers
             try
             {
                 if (item == null) return BadRequest("Add-on data is required.");
+
                 var repo = new AddOthersRepository(_configuration);
+
                 var existing = repo.GetByID(id);
                 if (existing == null) return NotFound($"Add-on with ID {id} not found.");
+
+                // Block if booking is cancelled
+                if (repo.IsBookingCancelled(existing.BookingID))
+                    return BadRequest($"Booking {existing.BookingID} has been cancelled. Cannot update extras on a cancelled booking.");
+
                 item.AddOthersID = id;
                 bool updated = repo.UpdateAddOthers(item);
                 if (updated) return Ok(new { message = "Add-on updated successfully." });
