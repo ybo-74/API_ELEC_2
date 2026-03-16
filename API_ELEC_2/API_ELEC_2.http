@@ -1,5 +1,9 @@
 @API_ELEC_2_HostAddress = http://localhost:5027
 
+# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+# kayo nalang po mag testing huhu ako sakit ulo na, btww anddyan  narin po yung format ng data na need niyo isend kada endpoint 
+# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 ### GET ALL EMPLOYEES
 GET {{API_ELEC_2_HostAddress}}/api/employees
 Accept: application/json
@@ -12,11 +16,82 @@ Accept: application/json
 
 ###
 
+### CREATE EMPLOYEE
+POST {{API_ELEC_2_HostAddress}}/api/employees
+Content-Type: application/json
+
+{
+  "employeeID": 007,
+  "firstName": "Ymmanuela Bo",
+  "lastName": "Cabalquinto",
+  "position": "Ewan basta",
+  "birthDate": "2005-03-02"
+}
+
+###
+
+### UPDATE EMPLOYEE
+PUT {{API_ELEC_2_HostAddress}}/api/employees/100
+Content-Type: application/json
+
+{
+  "firstName": "Richard",
+  "lastName": "Peralta",
+  "position": "Senior Dev",
+  "birthDate": "1990-01-15"
+}
+
+###
+
+### DELETE EMPLOYEE
+DELETE {{API_ELEC_2_HostAddress}}/api/employees/100
+Accept: application/json
+
+###
+
+
+# ─────────────────────────────────────────────────────────────
+# AIRLINES
+# ─────────────────────────────────────────────────────────────
+
 ### GET ALL AIRLINES
 GET {{API_ELEC_2_HostAddress}}/api/airlines
 Accept: application/json
 
 ###
+
+### CREATE AIRLINE
+POST {{API_ELEC_2_HostAddress}}/api/airlines
+Content-Type: application/json
+
+{
+  "airlineCode": "PH",
+  "description": "Philippine Airline"
+}
+
+###
+
+### UPDATE AIRLINE
+PUT {{API_ELEC_2_HostAddress}}/api/airlines/1
+Content-Type: application/json
+
+{
+  "airlineCode": "XX",
+  "description": "Updated Airline"
+}
+
+###
+
+### DELETE AIRLINE
+DELETE {{API_ELEC_2_HostAddress}}/api/airlines/1
+Accept: application/json
+
+###
+
+
+# ─────────────────────────────────────────────────────────────
+# AIRPORTS
+# ─────────────────────────────────────────────────────────────
 
 ### GET ALL AIRPORTS
 GET {{API_ELEC_2_HostAddress}}/api/airports
@@ -24,20 +99,483 @@ Accept: application/json
 
 ###
 
+### CREATE AIRPORT
+POST {{API_ELEC_2_HostAddress}}/api/airports
+Content-Type: application/json
+
+{
+  "code": "ZZZ",
+  "description": "Sample International Airport"
+}
+
+###
+
+### UPDATE AIRPORT
+PUT {{API_ELEC_2_HostAddress}}/api/airports/1
+Content-Type: application/json
+
+{
+  "code": "ZZZ",
+  "description": "Updated International Airport"
+}
+
+###
+
+### DELETE AIRPORT
+DELETE {{API_ELEC_2_HostAddress}}/api/airports/1
+Accept: application/json
+
+###
+
+
+# ─────────────────────────────────────────────────────────────
+# FLIGHTS
+# ─────────────────────────────────────────────────────────────
+
 ### GET ALL FLIGHTS
 GET {{API_ELEC_2_HostAddress}}/api/flights
 Accept: application/json
 
 ###
 
-### GET ALL BOOKINGS
-GET {{API_ELEC_2_HostAddress}}/api/bookings
+### GET COMPLETED FLIGHTS
+GET {{API_ELEC_2_HostAddress}}/api/flights/completed
 Accept: application/json
 
 ###
 
-### GET ALL BOOKING PAY
-GET {{API_ELEC_2_HostAddress}}/api/bookings/pay
+### CREATE FLIGHT
+POST {{API_ELEC_2_HostAddress}}/api/flights
+Content-Type: application/json
+
+{
+  "originID": 1,
+  "destinationID": 2,
+  "airlineID": 1,
+  "travelDate": "2026-12-25",
+  "travelTime": "08:00:00",
+  "maxPax": 60
+}
+
+###
+
+### UPDATE FLIGHT
+PUT {{API_ELEC_2_HostAddress}}/api/flights/1
+Content-Type: application/json
+
+{
+  "originID": 1,
+  "destinationID": 3,
+  "airlineID": 2,
+  "travelDate": "2026-12-26",
+  "travelTime": "10:00:00",
+  "maxPax": 60
+}
+
+###
+
+### DELETE FLIGHT
+DELETE {{API_ELEC_2_HostAddress}}/api/flights/1
+Accept: application/json
+
+###
+
+
+# ─────────────────────────────────────────────────────────────
+# BOOKINGS
+# ─────────────────────────────────────────────────────────────
+
+### GET AVAILABLE FLIGHTS
+GET {{API_ELEC_2_HostAddress}}/api/bookings/available
+Accept: application/json
+
+###
+
+### GET BOOKING DETAILS BY BOOKING ID
+GET {{API_ELEC_2_HostAddress}}/api/bookings/details/1
+Accept: application/json
+
+###
+
+### CREATE BOOKING
+POST {{API_ELEC_2_HostAddress}}/api/bookings
+Content-Type: application/json
+
+{
+  "flightID": 1,
+  "lastName": "Santos",
+  "firstName": "Maria",
+  "middleName": "Cruz",
+  "contact": "09171234567",
+  "birthdate": "1995-06-20",
+  "age": 30
+}
+
+###
+
+### UPDATE PASSENGER INFO
+PUT {{API_ELEC_2_HostAddress}}/api/bookings/1
+Content-Type: application/json
+
+{
+  "lastName": "Santos",
+  "firstName": "Maria",
+  "contact": "09179999999",
+  "birthdate": "1995-06-20",
+  "age": 30
+}
+
+###
+
+### TRANSFER FLIGHT
+PUT {{API_ELEC_2_HostAddress}}/api/bookings/1/transfer
+Content-Type: application/json
+
+{
+  "newFlightID": 2
+}
+
+###
+
+### CANCEL BOOKING
+DELETE {{API_ELEC_2_HostAddress}}/api/bookings/1
+Accept: application/json
+
+###
+
+
+# ─────────────────────────────────────────────────────────────
+# ADD OTHERS
+# ─────────────────────────────────────────────────────────────
+
+### GET ADD-ONS BY BOOKING ID
+GET {{API_ELEC_2_HostAddress}}/api/addothers/booking/1
+Accept: application/json
+
+###
+
+### GET ADD-ONS BY PAX ID
+GET {{API_ELEC_2_HostAddress}}/api/addothers/pax/1
+Accept: application/json
+
+###
+
+### CREATE ADD-ON
+POST {{API_ELEC_2_HostAddress}}/api/addothers
+Content-Type: application/json
+
+{
+  "bookingID": 1,
+  "paxID": 1,
+  "mealID": 1,
+  "seatID": 1,
+  "baggageID": 1,
+  "insuranceID": 1,
+  "isMeal": true,
+  "isSeat": true,
+  "isBaggage": true,
+  "isInsurance": true
+}
+
+###
+
+### UPDATE ADD-ON
+PUT {{API_ELEC_2_HostAddress}}/api/addothers/1
+Content-Type: application/json
+
+{
+  "mealID": 2,
+  "seatID": 3,
+  "baggageID": 2,
+  "insuranceID": 1,
+  "isMeal": true,
+  "isSeat": true,
+  "isBaggage": false,
+  "isInsurance": true
+}
+
+###
+
+### SOFT DELETE ADD-ON (sets IsActive = 0)
+DELETE {{API_ELEC_2_HostAddress}}/api/addothers/1
+Accept: application/json
+
+###
+
+
+# ─────────────────────────────────────────────────────────────
+# OTHER DETAILS - MEALS
+# ─────────────────────────────────────────────────────────────
+
+### GET ALL MEALS
+GET {{API_ELEC_2_HostAddress}}/api/otherdetails/meals
+Accept: application/json
+
+###
+
+### GET MEAL BY ID
+GET {{API_ELEC_2_HostAddress}}/api/otherdetails/meals/1
+Accept: application/json
+
+###
+
+### CREATE MEAL
+POST {{API_ELEC_2_HostAddress}}/api/otherdetails/meals
+Content-Type: application/json
+
+{
+  "type": "Diabetic Meal"
+}
+
+###
+
+### UPDATE MEAL
+PUT {{API_ELEC_2_HostAddress}}/api/otherdetails/meals/1
+Content-Type: application/json
+
+{
+  "type": "Standard Updated"
+}
+
+###
+
+### DELETE MEAL
+DELETE {{API_ELEC_2_HostAddress}}/api/otherdetails/meals/1
+Accept: application/json
+
+###
+
+
+# ─────────────────────────────────────────────────────────────
+# OTHER DETAILS - SEATS
+# ─────────────────────────────────────────────────────────────
+
+### GET ALL SEATS
+GET {{API_ELEC_2_HostAddress}}/api/otherdetails/seats
+Accept: application/json
+
+###
+
+### GET SEAT BY ID
+GET {{API_ELEC_2_HostAddress}}/api/otherdetails/seats/1
+Accept: application/json
+
+###
+
+### CREATE SEAT
+POST {{API_ELEC_2_HostAddress}}/api/otherdetails/seats
+Content-Type: application/json
+
+{
+  "seat": "4A"
+}
+
+###
+
+### UPDATE SEAT
+PUT {{API_ELEC_2_HostAddress}}/api/otherdetails/seats/1
+Content-Type: application/json
+
+{
+  "seat": "1A Updated"
+}
+
+###
+
+### DELETE SEAT
+DELETE {{API_ELEC_2_HostAddress}}/api/otherdetails/seats/1
+Accept: application/json
+
+###
+
+
+# ─────────────────────────────────────────────────────────────
+# OTHER DETAILS - INSURANCE
+# ─────────────────────────────────────────────────────────────
+
+### GET ALL INSURANCE
+GET {{API_ELEC_2_HostAddress}}/api/otherdetails/insurance
+Accept: application/json
+
+###
+
+### GET INSURANCE BY ID
+GET {{API_ELEC_2_HostAddress}}/api/otherdetails/insurance/1
+Accept: application/json
+
+###
+
+### CREATE INSURANCE
+POST {{API_ELEC_2_HostAddress}}/api/otherdetails/insurance
+Content-Type: application/json
+
+{
+  "type": "Premium Coverage"
+}
+
+###
+
+### UPDATE INSURANCE
+PUT {{API_ELEC_2_HostAddress}}/api/otherdetails/insurance/1
+Content-Type: application/json
+
+{
+  "type": "Basic Updated"
+}
+
+###
+
+### DELETE INSURANCE
+DELETE {{API_ELEC_2_HostAddress}}/api/otherdetails/insurance/1
+Accept: application/json
+
+###
+
+
+# ─────────────────────────────────────────────────────────────
+# OTHER DETAILS - BAGGAGE
+# ─────────────────────────────────────────────────────────────
+
+### GET ALL BAGGAGE
+GET {{API_ELEC_2_HostAddress}}/api/otherdetails/baggage
+Accept: application/json
+
+###
+
+### GET BAGGAGE BY ID
+GET {{API_ELEC_2_HostAddress}}/api/otherdetails/baggage/1
+Accept: application/json
+
+###
+
+### CREATE BAGGAGE
+POST {{API_ELEC_2_HostAddress}}/api/otherdetails/baggage
+Content-Type: application/json
+
+{
+  "weight": 50.00
+}
+
+###
+
+### UPDATE BAGGAGE
+PUT {{API_ELEC_2_HostAddress}}/api/otherdetails/baggage/1
+Content-Type: application/json
+
+{
+  "weight": 25.00
+}
+
+###
+
+### DELETE BAGGAGE
+DELETE {{API_ELEC_2_HostAddress}}/api/otherdetails/baggage/1
+Accept: application/json
+
+###
+
+
+# ─────────────────────────────────────────────────────────────
+# OTHER DETAILS - OTHERSDETAILS
+# ─────────────────────────────────────────────────────────────
+
+### GET ALL OTHERSDETAILS
+GET {{API_ELEC_2_HostAddress}}/api/otherdetails
+Accept: application/json
+
+###
+
+### GET OTHERSDETAILS BY ID
+GET {{API_ELEC_2_HostAddress}}/api/otherdetails/1
+Accept: application/json
+
+###
+
+### GET OTHERSDETAILS BY BOOKING ID
+GET {{API_ELEC_2_HostAddress}}/api/otherdetails/booking/1
+Accept: application/json
+
+###
+
+### CREATE OTHERSDETAILS
+POST {{API_ELEC_2_HostAddress}}/api/otherdetails
+Content-Type: application/json
+
+{
+  "bookingID": 1,
+  "mealID": 1,
+  "insuranceID": 1,
+  "seatID": 1,
+  "baggageID": 1,
+  "paxID": 1
+}
+
+###
+
+### UPDATE OTHERSDETAILS
+PUT {{API_ELEC_2_HostAddress}}/api/otherdetails/1
+Content-Type: application/json
+
+{
+  "mealID": 2,
+  "insuranceID": 2,
+  "seatID": 2,
+  "baggageID": 2,
+  "paxID": 1
+}
+
+###
+
+### DELETE OTHERSDETAILS
+DELETE {{API_ELEC_2_HostAddress}}/api/otherdetails/1
+Accept: application/json
+
+###
+
+
+# ─────────────────────────────────────────────────────────────
+# CONFIRMATION
+# ─────────────────────────────────────────────────────────────
+
+### GET ALL CONFIRMATIONS
+GET {{API_ELEC_2_HostAddress}}/api/confirmation
+Accept: application/json
+
+###
+
+### GET CONFIRMATION BY BOOKING ID
+GET {{API_ELEC_2_HostAddress}}/api/confirmation/booking/1
+Accept: application/json
+
+###
+
+### CREATE CONFIRMATION
+POST {{API_ELEC_2_HostAddress}}/api/confirmation
+Content-Type: application/json
+
+{
+  "bookingID": 1,
+  "flightID": 1,
+  "confirmationCode": "CONF-ABC123"
+}
+
+###
+
+### UPDATE CONFIRMATION
+PUT {{API_ELEC_2_HostAddress}}/api/confirmation/1
+Content-Type: application/json
+
+{
+  "bookingID": 1,
+  "flightID": 1,
+  "confirmationCode": "CONF-ABC123",
+  "status": "Confirmed"
+}
+
+###
+
+### SOFT DELETE CONFIRMATION (sets Status = 'Cancelled')
+DELETE {{API_ELEC_2_HostAddress}}/api/confirmation/1
 Accept: application/json
 
 ###

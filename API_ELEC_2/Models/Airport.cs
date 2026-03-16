@@ -1,4 +1,4 @@
-﻿namespace API_ELEC_2.Models
+namespace API_ELEC_2.Models
 {
     public class Airport
     {

@@ -1,30 +1,28 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using API_ELEC_2.Models;
+using Microsoft.AspNetCore.Mvc;
 using API_ELEC_2.Repositories;
+using API_ELEC_2.Models;
 
 namespace API_ELEC_2.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class BookingsController : ControllerBase
     {
-        private readonly BookingRepository _bookingRepository;
+        private readonly IConfiguration _configuration;
 
         public BookingsController(IConfiguration configuration)
         {
-            _bookingRepository = new BookingRepository(configuration);
+            _configuration = configuration;
         }
 
-        // ==================== BOOKING_DETAILS ====================
-
-        // GET api/bookings
-        [HttpGet]
-        public ActionResult<IEnumerable<Booking_Details>> GetAllBookings()
+        // GET /api/bookings/available
+        [HttpGet("available")]
+        public ActionResult<IEnumerable<AvailableFlight>> GetAvailableFlights()
         {
             try
             {
-                var bookings = _bookingRepository.GetAllBookings();
-                return Ok(bookings);
+                var repo = new BookingRepository(_configuration);
+                return Ok(repo.GetAvailableFlights());
             }
             catch (Exception ex)
             {
@@ -32,16 +30,17 @@ namespace API_ELEC_2.Controllers
             }
         }
 
-        // GET api/bookings/5
-        [HttpGet("{id}")]
-        public ActionResult<Booking_Details> GetBookingByID(int id)
+        // GET /api/bookings/details/{bookingId}
+        [HttpGet("details/{bookingId}")]
+        public ActionResult<IEnumerable<BookingDetail>> GetBookingDetails(int bookingId)
         {
             try
             {
-                var booking = _bookingRepository.GetBookingByID(id);
-                if (booking == null)
-                    return NotFound($"Booking with ID {id} not found.");
-                return Ok(booking);
+                var repo = new BookingRepository(_configuration);
+                var details = repo.GetBookingDetails(bookingId);
+                if (details == null || !details.Any())
+                    return NotFound($"No booking details found for BookingID {bookingId}.");
+                return Ok(details);
             }
             catch (Exception ex)
             {
@@ -49,18 +48,16 @@ namespace API_ELEC_2.Controllers
             }
         }
 
-        // POST api/bookings
+        // POST /api/bookings
         [HttpPost]
-        public ActionResult CreateBooking([FromBody] Booking_Details booking)
+        public ActionResult CreateBooking([FromBody] CreateBookingRequest request)
         {
             try
             {
-                if (booking == null)
-                    return BadRequest("Booking data is required.");
-                bool isCreated = _bookingRepository.CreateBooking(booking);
-                if (isCreated)
-                    return Ok("Booking created successfully.");
-                return BadRequest("Failed to create booking.");
+                if (request == null) return BadRequest("Booking data is required.");
+                var repo = new BookingRepository(_configuration);
+                int newBookingID = repo.CreateBooking(request);
+                return Ok(new { BookingID = newBookingID, message = "Booking created successfully." });
             }
             catch (Exception ex)
             {
@@ -68,21 +65,19 @@ namespace API_ELEC_2.Controllers
             }
         }
 
-        // PUT api/bookings/5
+        // PUT /api/bookings/{id} → update passenger info
         [HttpPut("{id}")]
-        public ActionResult UpdateBooking(int id, [FromBody] Booking_Details booking)
+        public ActionResult UpdatePassenger(int id, [FromBody] BookingPax pax)
         {
             try
             {
-                if (booking == null)
-                    return BadRequest("Booking data is required.");
-                var existing = _bookingRepository.GetBookingByID(id);
-                if (existing == null)
-                    return NotFound($"Booking with ID {id} not found.");
-                bool isUpdated = _bookingRepository.UpdateBooking(id, booking);
-                if (isUpdated)
-                    return Ok("Booking updated successfully.");
-                return BadRequest("Failed to update booking.");
+                if (pax == null) return BadRequest("Passenger data is required.");
+                var repo = new BookingRepository(_configuration);
+                var existing = repo.GetBookingByID(id);
+                if (existing == null) return NotFound($"Booking with ID {id} not found.");
+                bool updated = repo.UpdatePassenger(id, pax);
+                if (updated) return Ok(new { message = "Passenger info updated successfully." });
+                return BadRequest("Failed to update passenger info.");
             }
             catch (Exception ex)
             {
@@ -90,334 +85,38 @@ namespace API_ELEC_2.Controllers
             }
         }
 
-        // DELETE api/bookings/5
+        // PUT /api/bookings/{id}/transfer
+        [HttpPut("{id}/transfer")]
+        public ActionResult TransferFlight(int id, [FromBody] TransferRequest request)
+        {
+            try
+            {
+                if (request == null) return BadRequest("Transfer data is required.");
+                var repo = new BookingRepository(_configuration);
+                var existing = repo.GetBookingByID(id);
+                if (existing == null) return NotFound($"Booking with ID {id} not found.");
+                bool transferred = repo.TransferFlight(id, request.NewFlightID);
+                if (transferred) return Ok(new { message = "Flight transfer successful." });
+                return BadRequest("Failed to transfer flight.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // DELETE /api/bookings/{id} → soft cancel
         [HttpDelete("{id}")]
-        public ActionResult DeleteBooking(int id)
+        public ActionResult CancelBooking(int id)
         {
             try
             {
-                var existing = _bookingRepository.GetBookingByID(id);
-                if (existing == null)
-                    return NotFound($"Booking with ID {id} not found.");
-                bool isDeleted = _bookingRepository.DeleteBooking(id);
-                if (isDeleted)
-                    return Ok("Booking deleted successfully.");
-                return BadRequest("Failed to delete booking.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // ==================== BOOKING_PAY ====================
-
-        // GET api/bookings/pay
-        [HttpGet("pay")]
-        public ActionResult<IEnumerable<Booking_Pay>> GetAllBookingPay()
-        {
-            try
-            {
-                var list = _bookingRepository.GetAllBookingPay();
-                return Ok(list);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // GET api/bookings/pay/5
-        [HttpGet("pay/{id}")]
-        public ActionResult<Booking_Pay> GetBookingPayByID(int id)
-        {
-            try
-            {
-                var pay = _bookingRepository.GetBookingPayByID(id);
-                if (pay == null)
-                    return NotFound($"Booking Pay with ID {id} not found.");
-                return Ok(pay);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // GET api/bookings/5/pay
-        [HttpGet("{bookingId}/pay")]
-        public ActionResult<IEnumerable<Booking_Pay>> GetBookingPayByBookingID(int bookingId)
-        {
-            try
-            {
-                var list = _bookingRepository.GetBookingPayByBookingID(bookingId);
-                return Ok(list);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // POST api/bookings/pay
-        [HttpPost("pay")]
-        public ActionResult CreateBookingPay([FromBody] Booking_Pay pay)
-        {
-            try
-            {
-                if (pay == null)
-                    return BadRequest("Booking Pay data is required.");
-                bool isCreated = _bookingRepository.CreateBookingPay(pay);
-                if (isCreated)
-                    return Ok("Booking Pay created successfully.");
-                return BadRequest("Failed to create booking pay.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // PUT api/bookings/pay/5
-        [HttpPut("pay/{id}")]
-        public ActionResult UpdateBookingPay(int id, [FromBody] Booking_Pay pay)
-        {
-            try
-            {
-                if (pay == null)
-                    return BadRequest("Booking Pay data is required.");
-                var existing = _bookingRepository.GetBookingPayByID(id);
-                if (existing == null)
-                    return NotFound($"Booking Pay with ID {id} not found.");
-                bool isUpdated = _bookingRepository.UpdateBookingPay(id, pay);
-                if (isUpdated)
-                    return Ok("Booking Pay updated successfully.");
-                return BadRequest("Failed to update booking pay.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // DELETE api/bookings/pay/5
-        [HttpDelete("pay/{id}")]
-        public ActionResult DeleteBookingPay(int id)
-        {
-            try
-            {
-                var existing = _bookingRepository.GetBookingPayByID(id);
-                if (existing == null)
-                    return NotFound($"Booking Pay with ID {id} not found.");
-                bool isDeleted = _bookingRepository.DeleteBookingPay(id);
-                if (isDeleted)
-                    return Ok("Booking Pay deleted successfully.");
-                return BadRequest("Failed to delete booking pay.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // ==================== BOOKING_OTHERS ====================
-
-        // GET api/bookings/others
-        [HttpGet("others")]
-        public ActionResult<IEnumerable<Booking_Others>> GetAllBookingOthers()
-        {
-            try
-            {
-                var list = _bookingRepository.GetAllBookingOthers();
-                return Ok(list);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // GET api/bookings/others/5
-        [HttpGet("others/{id}")]
-        public ActionResult<Booking_Others> GetBookingOthersByID(int id)
-        {
-            try
-            {
-                var item = _bookingRepository.GetBookingOthersByID(id);
-                if (item == null)
-                    return NotFound($"Booking Others with ID {id} not found.");
-                return Ok(item);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // POST api/bookings/others
-        [HttpPost("others")]
-        public ActionResult CreateBookingOthers([FromBody] Booking_Others others)
-        {
-            try
-            {
-                if (others == null)
-                    return BadRequest("Booking Others data is required.");
-                bool isCreated = _bookingRepository.CreateBookingOthers(others);
-                if (isCreated)
-                    return Ok("Booking Others created successfully.");
-                return BadRequest("Failed to create booking others.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // PUT api/bookings/others/5
-        [HttpPut("others/{id}")]
-        public ActionResult UpdateBookingOthers(int id, [FromBody] Booking_Others others)
-        {
-            try
-            {
-                if (others == null)
-                    return BadRequest("Booking Others data is required.");
-                var existing = _bookingRepository.GetBookingOthersByID(id);
-                if (existing == null)
-                    return NotFound($"Booking Others with ID {id} not found.");
-                bool isUpdated = _bookingRepository.UpdateBookingOthers(id, others);
-                if (isUpdated)
-                    return Ok("Booking Others updated successfully.");
-                return BadRequest("Failed to update booking others.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // DELETE api/bookings/others/5
-        [HttpDelete("others/{id}")]
-        public ActionResult DeleteBookingOthers(int id)
-        {
-            try
-            {
-                var existing = _bookingRepository.GetBookingOthersByID(id);
-                if (existing == null)
-                    return NotFound($"Booking Others with ID {id} not found.");
-                bool isDeleted = _bookingRepository.DeleteBookingOthers(id);
-                if (isDeleted)
-                    return Ok("Booking Others deleted successfully.");
-                return BadRequest("Failed to delete booking others.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // ==================== BOOKING_OTHER_DETAILS ====================
-
-        // GET api/bookings/otherdetails
-        [HttpGet("otherdetails")]
-        public ActionResult<IEnumerable<Booking_OtherDetails>> GetAllBookingOtherDetails()
-        {
-            try
-            {
-                var list = _bookingRepository.GetAllBookingOtherDetails();
-                return Ok(list);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // GET api/bookings/otherdetails/5
-        [HttpGet("otherdetails/{id}")]
-        public ActionResult<Booking_OtherDetails> GetBookingOtherDetailsByID(int id)
-        {
-            try
-            {
-                var item = _bookingRepository.GetBookingOtherDetailsByID(id);
-                if (item == null)
-                    return NotFound($"Booking Other Details with ID {id} not found.");
-                return Ok(item);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // GET api/bookings/5/otherdetails
-        [HttpGet("{bookingId}/otherdetails")]
-        public ActionResult<IEnumerable<Booking_OtherDetails>> GetBookingOtherDetailsByBookingID(int bookingId)
-        {
-            try
-            {
-                var list = _bookingRepository.GetBookingOtherDetailsByBookingID(bookingId);
-                return Ok(list);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // POST api/bookings/otherdetails
-        [HttpPost("otherdetails")]
-        public ActionResult CreateBookingOtherDetails([FromBody] Booking_OtherDetails details)
-        {
-            try
-            {
-                if (details == null)
-                    return BadRequest("Booking Other Details data is required.");
-                bool isCreated = _bookingRepository.CreateBookingOtherDetails(details);
-                if (isCreated)
-                    return Ok("Booking Other Details created successfully.");
-                return BadRequest("Failed to create booking other details.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // PUT api/bookings/otherdetails/5
-        [HttpPut("otherdetails/{id}")]
-        public ActionResult UpdateBookingOtherDetails(int id, [FromBody] Booking_OtherDetails details)
-        {
-            try
-            {
-                if (details == null)
-                    return BadRequest("Booking Other Details data is required.");
-                var existing = _bookingRepository.GetBookingOtherDetailsByID(id);
-                if (existing == null)
-                    return NotFound($"Booking Other Details with ID {id} not found.");
-                bool isUpdated = _bookingRepository.UpdateBookingOtherDetails(id, details);
-                if (isUpdated)
-                    return Ok("Booking Other Details updated successfully.");
-                return BadRequest("Failed to update booking other details.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // DELETE api/bookings/otherdetails/5
-        [HttpDelete("otherdetails/{id}")]
-        public ActionResult DeleteBookingOtherDetails(int id)
-        {
-            try
-            {
-                var existing = _bookingRepository.GetBookingOtherDetailsByID(id);
-                if (existing == null)
-                    return NotFound($"Booking Other Details with ID {id} not found.");
-                bool isDeleted = _bookingRepository.DeleteBookingOtherDetails(id);
-                if (isDeleted)
-                    return Ok("Booking Other Details deleted successfully.");
-                return BadRequest("Failed to delete booking other details.");
+                var repo = new BookingRepository(_configuration);
+                var existing = repo.GetBookingByID(id);
+                if (existing == null) return NotFound($"Booking with ID {id} not found.");
+                bool cancelled = repo.CancelBooking(id);
+                if (cancelled) return Ok(new { message = "Booking cancelled successfully." });
+                return BadRequest("Failed to cancel booking.");
             }
             catch (Exception ex)
             {
