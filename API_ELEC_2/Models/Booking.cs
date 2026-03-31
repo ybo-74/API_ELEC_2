@@ -19,7 +19,6 @@ namespace API_ELEC_2.Models
         public int Age { get; set; }
     }
 
-    // GET /api/bookings/available
     public class AvailableFlight
     {
         public int FlightID { get; set; }
@@ -33,7 +32,6 @@ namespace API_ELEC_2.Models
         public int SeatsLeft { get; set; }
     }
 
-    // GET /api/bookings/details/{bookingId}
     public class BookingDetail
     {
         public int BookingID { get; set; }
@@ -43,9 +41,10 @@ namespace API_ELEC_2.Models
         public int FlightID { get; set; }
         public DateTime TravelDate { get; set; }
         public string TravelTime { get; set; } = string.Empty;
+        public string ConfirmationCode { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime? ConfirmationDate { get; set; }
     }
-
-    // POST /api/bookings request body
     public class CreateBookingRequest
     {
         public int FlightID { get; set; }
@@ -56,8 +55,6 @@ namespace API_ELEC_2.Models
         public DateTime Birthdate { get; set; }
         public int Age { get; set; }
     }
-
-    // PUT /api/bookings/{id}/transfer
     public class TransferRequest
     {
         public int NewFlightID { get; set; }

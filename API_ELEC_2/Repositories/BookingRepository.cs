@@ -28,8 +28,8 @@ namespace API_ELEC_2.Repositories
                         {
                             booking = new Booking
                             {
-                                BookingID   = (int)reader["BookingID"],
-                                FlightID    = (int)reader["FlightID"],
+                                BookingID = (int)reader["BookingID"],
+                                FlightID = (int)reader["FlightID"],
                                 BookingDate = Convert.ToDateTime(reader["BookingDate"])
                             };
                         }
@@ -67,15 +67,15 @@ namespace API_ELEC_2.Repositories
                     {
                         list.Add(new AvailableFlight
                         {
-                            FlightID        = (int)reader["FlightID"],
-                            OriginCode      = reader["OriginCode"]?.ToString()      ?? string.Empty,
-                            OriginName      = reader["OriginName"]?.ToString()      ?? string.Empty,
+                            FlightID = (int)reader["FlightID"],
+                            OriginCode = reader["OriginCode"]?.ToString() ?? string.Empty,
+                            OriginName = reader["OriginName"]?.ToString() ?? string.Empty,
                             DestinationCode = reader["DestinationCode"]?.ToString() ?? string.Empty,
                             DestinationName = reader["DestinationName"]?.ToString() ?? string.Empty,
-                            TravelDate      = Convert.ToDateTime(reader["TravelDate"]),
-                            TravelTime      = reader["TravelTime"]?.ToString()      ?? string.Empty,
-                            AirlineCode     = reader["AirlineCode"]?.ToString()     ?? string.Empty,
-                            SeatsLeft       = (int)reader["SeatsLeft"]
+                            TravelDate = Convert.ToDateTime(reader["TravelDate"]),
+                            TravelTime = reader["TravelTime"]?.ToString() ?? string.Empty,
+                            AirlineCode = reader["AirlineCode"]?.ToString() ?? string.Empty,
+                            SeatsLeft = (int)reader["SeatsLeft"]
                         });
                     }
                 }
@@ -96,10 +96,14 @@ namespace API_ELEC_2.Repositories
                            p.Contact,
                            b.FlightID,
                            f.TravelDate,
-                           f.TravelTime
+                           f.TravelTime,
+                           c.ConfirmationCode,
+                           c.Status,
+                           c.ConfirmationDate
                     FROM Bookings b
-                    JOIN Booking_Pax p ON b.BookingID = p.BookingID
-                    JOIN FD_Details f  ON b.FlightID  = f.FlightID
+                    JOIN Booking_Pax p       ON b.BookingID = p.BookingID
+                    JOIN FD_Details f        ON b.FlightID  = f.FlightID
+                    LEFT JOIN Confirmation c ON b.BookingID = c.BookingID
                     WHERE b.BookingID = @BookingID";
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -110,13 +114,18 @@ namespace API_ELEC_2.Repositories
                         {
                             list.Add(new BookingDetail
                             {
-                                BookingID  = (int)reader["BookingID"],
-                                PaxID      = (int)reader["PaxID"],
-                                FullName   = reader["FullName"]?.ToString()  ?? string.Empty,
-                                Contact    = reader["Contact"]?.ToString()   ?? string.Empty,
-                                FlightID   = (int)reader["FlightID"],
+                                BookingID = (int)reader["BookingID"],
+                                PaxID = (int)reader["PaxID"],
+                                FullName = reader["FullName"]?.ToString() ?? string.Empty,
+                                Contact = reader["Contact"]?.ToString() ?? string.Empty,
+                                FlightID = (int)reader["FlightID"],
                                 TravelDate = Convert.ToDateTime(reader["TravelDate"]),
-                                TravelTime = reader["TravelTime"]?.ToString() ?? string.Empty
+                                TravelTime = reader["TravelTime"]?.ToString() ?? string.Empty,
+                                ConfirmationCode = reader["ConfirmationCode"]?.ToString() ?? string.Empty,
+                                Status = reader["Status"]?.ToString() ?? string.Empty,
+                                ConfirmationDate = reader["ConfirmationDate"] == DBNull.Value
+                                                   ? null
+                                                   : Convert.ToDateTime(reader["ConfirmationDate"])
                             });
                         }
                     }
@@ -125,7 +134,7 @@ namespace API_ELEC_2.Repositories
             return list;
         }
 
-        // Returns new BookingID
+        // returns new BookingID
         public int CreateBooking(CreateBookingRequest request)
         {
             using (var connection = new SqlConnection(_connectionString))
@@ -153,13 +162,13 @@ namespace API_ELEC_2.Repositories
                                              (@BookingID, @LastName, @FirstName, @MiddleName, @Contact, @Birthdate, @Age)";
                         using (var command = new SqlCommand(insertPax, connection, transaction))
                         {
-                            command.Parameters.AddWithValue("@BookingID",  newBookingID);
-                            command.Parameters.AddWithValue("@LastName",   request.LastName);
-                            command.Parameters.AddWithValue("@FirstName",  request.FirstName);
+                            command.Parameters.AddWithValue("@BookingID", newBookingID);
+                            command.Parameters.AddWithValue("@LastName", request.LastName);
+                            command.Parameters.AddWithValue("@FirstName", request.FirstName);
                             command.Parameters.AddWithValue("@MiddleName", request.MiddleName);
-                            command.Parameters.AddWithValue("@Contact",    request.Contact);
-                            command.Parameters.AddWithValue("@Birthdate",  request.Birthdate);
-                            command.Parameters.AddWithValue("@Age",        request.Age);
+                            command.Parameters.AddWithValue("@Contact", request.Contact);
+                            command.Parameters.AddWithValue("@Birthdate", request.Birthdate);
+                            command.Parameters.AddWithValue("@Age", request.Age);
                             command.ExecuteNonQuery();
                         }
 
@@ -195,11 +204,11 @@ namespace API_ELEC_2.Repositories
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@BookingID", bookingId);
-                    command.Parameters.AddWithValue("@LastName",  pax.LastName);
+                    command.Parameters.AddWithValue("@LastName", pax.LastName);
                     command.Parameters.AddWithValue("@FirstName", pax.FirstName);
-                    command.Parameters.AddWithValue("@Contact",   pax.Contact);
+                    command.Parameters.AddWithValue("@Contact", pax.Contact);
                     command.Parameters.AddWithValue("@Birthdate", pax.Birthdate);
-                    command.Parameters.AddWithValue("@Age",       pax.Age);
+                    command.Parameters.AddWithValue("@Age", pax.Age);
                     return command.ExecuteNonQuery() > 0;
                 }
             }
@@ -228,7 +237,7 @@ namespace API_ELEC_2.Repositories
                         using (var command = new SqlCommand(updateBooking, connection, transaction))
                         {
                             command.Parameters.AddWithValue("@NewFlightID", newFlightId);
-                            command.Parameters.AddWithValue("@BookingID",   bookingId);
+                            command.Parameters.AddWithValue("@BookingID", bookingId);
                             command.ExecuteNonQuery();
                         }
 
@@ -280,7 +289,7 @@ namespace API_ELEC_2.Repositories
                             flightId = Convert.ToInt32(result);
                         }
 
-                        // 2. Soft delete Confirmation → Status = 'Cancelled'
+                        // 2. Soft delete Confirmation -- Status = 'Cancelled'
                         string cancelConf = "UPDATE Confirmation SET Status = 'Cancelled' WHERE BookingID = @BookingID";
                         using (var command = new SqlCommand(cancelConf, connection, transaction))
                         {
@@ -288,8 +297,8 @@ namespace API_ELEC_2.Repositories
                             command.ExecuteNonQuery();
                         }
 
-                        // 3. Soft delete AddOthers → IsActive = 0
-                      
+                        // 3. Soft delete AddOthers -- IsActive = 0
+
                         string cancelAddOthers = "UPDATE AddOthers SET IsActive = 0 WHERE BookingID = @BookingID";
                         using (var command = new SqlCommand(cancelAddOthers, connection, transaction))
                         {
