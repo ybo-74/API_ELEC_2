@@ -133,6 +133,53 @@ namespace API_ELEC_2.Repositories
             }
             return list;
         }
+        public IEnumerable<BookingDetail> GetAllBookings()
+        {
+            var list = new List<BookingDetail>();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = @"
+            SELECT b.BookingID,
+                   p.PaxID,
+                   (p.FirstName + ' ' + p.LastName) AS FullName,
+                   p.Contact,
+                   b.FlightID,
+                   f.TravelDate,
+                   f.TravelTime,
+                   c.ConfirmationCode,
+                   c.Status,
+                   c.ConfirmationDate
+            FROM Bookings b
+            JOIN Booking_Pax p       ON b.BookingID = p.BookingID
+            JOIN FD_Details f        ON b.FlightID  = f.FlightID
+            LEFT JOIN Confirmation c ON b.BookingID = c.BookingID
+            ORDER BY b.BookingID DESC";
+                using (var command = new SqlCommand(query, connection))
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new BookingDetail
+                        {
+                            BookingID = (int)reader["BookingID"],
+                            PaxID = (int)reader["PaxID"],
+                            FullName = reader["FullName"]?.ToString() ?? string.Empty,
+                            Contact = reader["Contact"]?.ToString() ?? string.Empty,
+                            FlightID = (int)reader["FlightID"],
+                            TravelDate = Convert.ToDateTime(reader["TravelDate"]),
+                            TravelTime = reader["TravelTime"]?.ToString() ?? string.Empty,
+                            ConfirmationCode = reader["ConfirmationCode"]?.ToString() ?? string.Empty,
+                            Status = reader["Status"]?.ToString() ?? string.Empty,
+                            ConfirmationDate = reader["ConfirmationDate"] == DBNull.Value
+                                               ? null
+                                               : Convert.ToDateTime(reader["ConfirmationDate"])
+                        });
+                    }
+                }
+            }
+            return list;
+        }
 
         // returns new BookingID
         public int CreateBooking(CreateBookingRequest request)

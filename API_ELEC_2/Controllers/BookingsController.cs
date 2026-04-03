@@ -29,7 +29,20 @@ namespace API_ELEC_2.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
+        // GET /api/bookings
+        [HttpGet]
+        public ActionResult<IEnumerable<BookingDetail>> GetAllBookings()
+        {
+            try
+            {
+                var repo = new BookingRepository(_configuration);
+                return Ok(repo.GetAllBookings());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
         // GET /api/bookings/details/{bookingId}
         [HttpGet("details/{bookingId}")]
         public ActionResult<IEnumerable<BookingDetail>> GetBookingDetails(int bookingId)
